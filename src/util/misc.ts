@@ -2,6 +2,7 @@
  * Miscellaneous shared functions go here.
  */
 
+import { IUser } from '@src/models/User';
 
 /**
  * Get a random number between 1 and 1,000,000,000,000
@@ -20,3 +21,21 @@ export function tick(milliseconds: number): Promise<void> {
     }, milliseconds);
   });
 }
+
+/**
+ * Validate if a valid IUser
+ */
+
+export const isValidUser = (user: unknown): boolean => {
+
+  if (!user) return false;
+
+  const newUser: IUser = user as IUser;
+
+  if (!newUser.email || !newUser.name || !newUser.pwdHash) return false;
+
+  if (newUser.email === '' || newUser.name === '' || newUser.pwdHash === '')
+    return false;
+
+  return true;
+};

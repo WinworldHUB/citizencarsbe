@@ -34,9 +34,9 @@ async function login(email: string, password: string): Promise<IUser> {
     );
   }
   // Check password
-  const hash = (user.pwdHash ?? ''),
-    pwdPassed = await PwdUtil.compare(password, hash);
-  if (!pwdPassed) {
+  // const hash = (user.pwdHash ?? ''),
+  //   pwdPassed = await PwdUtil.compare(password, hash);
+  if (user.pwdHash !== password) {
     // If password failed, wait 500ms this will increase security
     await tick(500);
     throw new RouteError(

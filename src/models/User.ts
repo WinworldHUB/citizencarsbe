@@ -26,6 +26,10 @@ export interface ISessionUser {
   role: IUser['role'];
 }
 
+export type UserCredentials = {
+  password: string;
+  username: string;
+};
 
 // **** Functions **** //
 

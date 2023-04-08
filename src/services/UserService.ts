@@ -2,11 +2,13 @@ import UserRepo from '@src/repos/UserRepo';
 import { IUser } from '@src/models/User';
 import { RouteError } from '@src/other/classes';
 import HttpStatusCodes from '@src/constants/HttpStatusCodes';
+import { getRandomInt } from '@src/util/misc';
 
 
 // **** Variables **** //
 
 export const USER_NOT_FOUND_ERR = 'User not found';
+export const USER_ALREADY_EXISTS = 'User already exists';
 
 
 // **** Functions **** //
@@ -21,8 +23,16 @@ function getAll(): Promise<IUser[]> {
 /**
  * Add one user.
  */
-function addOne(user: IUser): Promise<void> {
-  return UserRepo.add(user);
+async function addOne(user: IUser): Promise<void> {
+  const exists = await UserRepo.getOne(user.email);
+
+  if (exists) {
+    throw new RouteError(HttpStatusCodes.CONFLICT, USER_ALREADY_EXISTS);
+  }
+
+  user.id = getRandomInt();
+  user.role = 0;
+  return await UserRepo.add(user);
 }
 
 /**
@@ -37,7 +47,7 @@ async function updateOne(user: IUser): Promise<void> {
     );
   }
   // Return user
-  return UserRepo.update(user);
+  return await UserRepo.update(user);
 }
 
 /**
@@ -52,7 +62,7 @@ async function _delete(id: number): Promise<void> {
     );
   }
   // Delete user
-  return UserRepo.delete(id);
+  return await UserRepo.delete(id);
 }
 
 

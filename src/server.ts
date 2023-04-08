@@ -19,19 +19,25 @@ import HttpStatusCodes from '@src/constants/HttpStatusCodes';
 
 import { NodeEnvs } from '@src/constants/misc';
 import { RouteError } from '@src/other/classes';
+import { IUser, UserCredentials } from './models/User';
+import { EmptyCredentials } from './constants/constants';
+import AuthService from './services/AuthService';
+import {
+  PrepareErrorResponse,
+  PrepareJsonResponse,
+} from './services/RespService';
+import { isValidUser } from './util/misc';
 import UserService from './services/UserService';
-
 
 // **** Variables **** //
 
 const app = express();
 
-
 // **** Setup **** //
 
 // Basic middleware
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(EnvVars.CookieProps.Secret));
 
 // Show routes called in console during development
@@ -48,23 +54,24 @@ if (EnvVars.NodeEnv === NodeEnvs.Production) {
 app.use(Paths.Base, BaseRouter);
 
 // Add error handler
-app.use((
-  err: Error,
-  _: Request,
-  res: Response,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  next: NextFunction,
-) => {
-  if (EnvVars.NodeEnv !== NodeEnvs.Test) {
-    logger.err(err, true);
-  }
-  let status = HttpStatusCodes.BAD_REQUEST;
-  if (err instanceof RouteError) {
-    status = err.status;
-  }
-  return res.status(status).json({ error: err.message });
-});
-
+app.use(
+  (
+    err: Error,
+    _: Request,
+    res: Response,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    next: NextFunction,
+  ) => {
+    if (EnvVars.NodeEnv !== NodeEnvs.Test) {
+      logger.err(err, true);
+    }
+    let status = HttpStatusCodes.BAD_REQUEST;
+    if (err instanceof RouteError) {
+      status = err.status;
+    }
+    return res.status(status).json({ error: err.message });
+  },
+);
 
 // ** Front-End Content ** //
 
@@ -77,8 +84,26 @@ const staticDir = path.join(__dirname, 'public');
 app.use(express.static(staticDir));
 
 // Nav to users pg by default
-app.get('/', (_: Request, res: Response) => {
-  UserService.getAll().then(users => res.json(users));
+app.get('/', (req: Request, res: Response) => {
+  const credentials = (req.body as UserCredentials) ?? EmptyCredentials;
+
+  AuthService.login(credentials.username, credentials.password)
+    .then((user) => {
+      res.json(PrepareJsonResponse({ id: user.id }));
+    })
+    .catch((reason: RouteError) => res.json(PrepareErrorResponse(reason)));
+});
+
+app.get('/register', (req: Request, res: Response) => {
+  const newUser: IUser = req.body as IUser;
+
+  if (isValidUser(newUser)) {
+    UserService.addOne(newUser)
+      .then(() => {
+        res.json(PrepareJsonResponse(newUser));
+      })
+      .catch((reason: RouteError) => res.json(PrepareErrorResponse(reason)));
+  }
 });
 
 // **** Export default **** //
