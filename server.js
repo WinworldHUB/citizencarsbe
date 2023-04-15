@@ -1,5 +1,5 @@
 const express = require('express');
-const cors = require ('cors');
+const cors = require('cors');
 const dbService = require('./dbservice');
 
 const port = 8080;
@@ -17,11 +17,35 @@ app.use(express.json());
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
 
-app.post('/register', (req, res) => {
-    console.log(req);
-    res.send('All good!');
+app.post('/login', (req, res) => {
+  console.log(req.body.username ?? '', req.body.password ?? '');
+  dbService.authenticateUser(
+    req.body.username ?? '',
+    req.body.password ?? '',
+    (result) => {
+      res.json(result);
+    }
+  );
 });
- 
+
+app.post('/register', (req, res) => {
+  console.log(
+    req.body.username ?? '',
+    req.body.password ?? '',
+    req.body.name ?? '',
+    req.body.phone ?? ''
+  );
+  dbService.registerUser(
+    req.body.name ?? '',
+    req.body.phone ?? '',
+    req.body.username ?? '',
+    req.body.password ?? '',
+    (result) => {
+      res.json(result);
+    }
+  );
+});
+
 app.listen(port, () => {
   console.log(`server started at http://localhost:${port}`);
 });
