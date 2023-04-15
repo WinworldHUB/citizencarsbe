@@ -1,6 +1,9 @@
 const data = require('./queries.json');
 const mysql = require('mysql2');
 
+const SUCCESS = 'success';
+const FAILURE = 'failure';
+
 const dbPool = mysql.createPool({
   database: 'defaultdb',
   host: 'db-mysql-blr1-2025-do-user-13812577-0.b.db.ondigitalocean.com',
@@ -16,35 +19,54 @@ const dbPool = mysql.createPool({
 });
 
 const dbService = {
-  authenticateUser: (username, password, onCallback) => {
-    dbPool.query(data.login, [username, password], (err, result) => {
+  getUser: (username, onCallback) => {
+    dbPool.query(data.getUser, [username], (err, result) => {
       if (err) console.log(err);
       if (result) {
-        console.log(result);
         if (result && result.length > 0) {
-          onCallback({ status: 'success', data: result[0] });
+          onCallback({ status: SUCCESS, data: result[0] });
         } else {
-          onCallback({ status: 'failed', data: 'Invalid credentials' });
+          onCallback({ status: FAILURE, data: 'User not found or not active' });
         }
       }
     });
   },
-  registerUser: (name, phone, username, password, onCallback) => {
-    dbPool.query(
-      data.register,
-      [username, password, name, phone],
-      (err, result) => {
-        if (err) console.log(err);
-        if (result) {
-          console.log(result);
-          if (result && result.affectedRows > 0) {
-            onCallback({ status: 'success', data: result[0] });
-          } else {
-            onCallback({ status: 'failed', data: 'Invalid credentials' });
-          }
-        }
+
+  authenticateUser: (username, password, onCallback) => {
+    dbService.getUser(username, (result) => {
+      if (result.status === SUCCESS && result.data.password === password) {
+        onCallback({ status: SUCCESS, data: result.data.id });
+      } else {
+        onCallback({ status: FAILURE, data: 'Invalid credentials' });
       }
-    );
+    });
+  },
+
+  registerUser: (name, phone, username, password, onCallback) => {
+    dbService.getUser(username, (userQueryResult) => {
+      if (userQueryResult.status === SUCCESS) {
+        onCallback({ status: FAILURE, data: 'User already exists' });
+      } else {
+        dbPool.query(
+          data.register,
+          [username, password, name, phone],
+          (err, result) => {
+            if (err) console.log(err);
+            if (result) {
+              console.log(result);
+              if (result && result.affectedRows > 0) {
+                onCallback({ status: 'success', data: result[0] });
+              } else {
+                onCallback({
+                  status: 'failed',
+                  data: 'Invalid credentials',
+                });
+              }
+            }
+          }
+        );
+      }
+    });
   },
 };
 

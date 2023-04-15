@@ -18,7 +18,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.post('/login', (req, res) => {
-  console.log(req.body.username ?? '', req.body.password ?? '');
   dbService.authenticateUser(
     req.body.username ?? '',
     req.body.password ?? '',
@@ -29,12 +28,6 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
-  console.log(
-    req.body.username ?? '',
-    req.body.password ?? '',
-    req.body.name ?? '',
-    req.body.phone ?? ''
-  );
   dbService.registerUser(
     req.body.name ?? '',
     req.body.phone ?? '',
