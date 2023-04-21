@@ -23,7 +23,8 @@ const dbService = {
     dbPool.query(data.getUser, [username], (err, result) => {
       if (err) console.log(err);
       if (result) {
-        if (result && result.length > 0) {
+        console.log(result);
+        if (result.length > 0) {
           onCallback({ status: SUCCESS, data: result[0] });
         } else {
           onCallback({ status: FAILURE, data: 'User not found or not active' });
