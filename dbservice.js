@@ -35,7 +35,10 @@ const dbService = {
   authenticateUser: (username, password, onCallback) => {
     dbService.getUser(username, (result) => {
       if (result.status === SUCCESS && result.data.password === password) {
-        onCallback({ status: SUCCESS, data: result.data.id });
+        onCallback({
+          status: SUCCESS,
+          data: { id: result.data.id, role: result.data.role },
+        });
       } else {
         onCallback({ status: FAILURE, data: 'Invalid credentials' });
       }
@@ -54,7 +57,7 @@ const dbService = {
             if (err) console.log(err);
             if (result) {
               console.log(result);
-              if (result && result.affectedRows > 0) {
+              if (result.affectedRows > 0) {
                 onCallback({ status: 'success', data: result[0] });
               } else {
                 onCallback({
@@ -67,6 +70,10 @@ const dbService = {
         );
       }
     });
+  },
+
+  uploadData: (dataRows) => {
+    console.log(dataRows);
   },
 };
 

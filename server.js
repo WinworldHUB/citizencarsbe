@@ -39,6 +39,8 @@ app.post('/register', (req, res) => {
   );
 });
 
+app.post('/upload', (req, res) => { });
+
 app.listen(port, () => {
   console.log(`server started at http://localhost:${port}`);
 });
