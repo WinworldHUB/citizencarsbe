@@ -22,6 +22,7 @@ app.post('/login', (req, res) => {
     req.body.username ?? '',
     req.body.password ?? '',
     (result) => {
+      console.log(result);
       res.json(result);
     }
   );
