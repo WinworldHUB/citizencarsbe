@@ -1,5 +1,5 @@
 {
-  "getUser": "select id, password from users where username=? and isActive=1",
+  "getUser": "select id, password, role from users where username=? and isActive=1",
   "login": "select id from users where username=? and password=?",
   "register": "INSERT INTO users(username, password, name, phone, isActive)VALUES(?, ?, ?, ?, b'1');"
 }
