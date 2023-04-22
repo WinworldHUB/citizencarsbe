@@ -116,29 +116,37 @@ const dbService = {
   getCars: (pageStart, numberOfRecords, onCallback) => {
     dbService.getTotalCars((totalCars) => {
       if (totalCars.status === SUCCESS) {
-        const calculatedPageStart =
-          pageStart < totalCars.data.totalCars
-            ? pageStart
-            : totalCars.data.totalCars - numberOfRecords - 1;
-        dbPool.query(
-          queries.getCars,
-          [calculatedPageStart, numberOfRecords],
-          (err, result) => {
-            if (err) console.log(err);
+        if (totalCars.data.totalCars > 0) {
+          const calculatedPageStart =
+            pageStart < totalCars.data.totalCars
+              ? pageStart
+              : totalCars.data.totalCars - numberOfRecords - 1;
+          dbPool.query(
+            queries.getCars,
+            [calculatedPageStart, numberOfRecords],
+            (err, result) => {
+              if (err) console.log(err);
 
-            if (result) {
-              console.log(result);
-              if (result.length > 0) {
-                onCallback({ status: 'success', data: result });
-              } else {
-                onCallback({
-                  status: 'failed',
-                  data: 'No cars found',
-                });
+              if (result) {
+                console.log(result);
+                if (result.length > 0) {
+                  onCallback({ status: 'success', data: result });
+                } else {
+                  onCallback({
+                    status: 'failed',
+                    data: 'No cars found',
+                  });
+                }
               }
             }
-          }
-        );
+          );
+        } else {
+          onCallback({
+            status: 'failed',
+            data: 'No cars found',
+          });
+        }
+        
       } else {
         onCallback({
           status: 'failed',

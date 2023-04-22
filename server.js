@@ -54,6 +54,7 @@ app.get('/totalcars', (req, res) => {
 app.get('/cars', (req, res) => {
   const pageStart = req.body.pageStart ?? 0;
   const numberOfRecords = req.body.numberOfRecords ?? 10;
+  console.log(pageStart, numberOfRecords);
   dbService.getCars(pageStart, numberOfRecords, (result) => {
     res.json(result);
   });
