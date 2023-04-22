@@ -40,7 +40,24 @@ app.post('/register', (req, res) => {
   );
 });
 
-app.post('/upload', (req, res) => { });
+app.post('/upload', (req, res) => {
+  dbService.uploadData(req.body);
+  res.json(req.body);
+});
+
+app.get('/totalcars', (req, res) => {
+  dbService.getTotalCars((result) => {
+    res.json(result);
+  });
+});
+
+app.get('/cars', (req, res) => {
+  const pageStart = req.body.pageStart ?? 0;
+  const numberOfRecords = req.body.numberOfRecords ?? 10;
+  dbService.getCars(pageStart, numberOfRecords, (result) => {
+    res.json(result);
+  });
+});
 
 app.listen(port, () => {
   console.log(`server started at http://localhost:${port}`);

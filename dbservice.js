@@ -1,4 +1,4 @@
-const data = require('./queries.json');
+const queries = require('./queries.json');
 const mysql = require('mysql2');
 
 const SUCCESS = 'success';
@@ -20,7 +20,7 @@ const dbPool = mysql.createPool({
 
 const dbService = {
   getUser: (username, onCallback) => {
-    dbPool.query(data.getUser, [username], (err, result) => {
+    dbPool.query(queries.getUser, [username], (err, result) => {
       if (err) console.log(err);
       if (result) {
         console.log(result);
@@ -52,7 +52,7 @@ const dbService = {
         onCallback({ status: FAILURE, data: 'User already exists' });
       } else {
         dbPool.query(
-          data.register,
+          queries.register,
           [username, password, name, phone],
           (err, result) => {
             if (err) console.log(err);
@@ -73,8 +73,79 @@ const dbService = {
     });
   },
 
-  uploadData: (dataRows) => {
-    console.log(dataRows);
+  uploadData: (dataRows = { columns: [], values: [] }) => {
+    let query = `${queries.upload} (`;
+
+    dataRows.columns.forEach((column) => (query += `\`${column}\`, `));
+
+    query += ') VALUES ?';
+    query = query.replace(', )', ')');
+
+    dbPool.query(query, [dataRows.values], (err, result) => {
+      if (err) console.log(err);
+
+      if (result) {
+        console.log(result);
+        if (result.affectedRows > 0) {
+          //onCallback({ status: 'success', data: result });
+        } else {
+          // onCallback({
+          //   status: 'failed',
+          //   data: 'Invalid credentials',
+          // });
+        }
+      }
+    });
+  },
+
+  getTotalCars: (onCallback) => {
+    dbPool.query(queries.getTotalCars, null, (err, result) => {
+      if (err) console.log(err);
+
+      if (result && result.length > 0) {
+        onCallback({ status: 'success', data: result[0] });
+      } else {
+        onCallback({
+          status: 'failed',
+          data: 'No cars found',
+        });
+      }
+    });
+  },
+
+  getCars: (pageStart, numberOfRecords, onCallback) => {
+    dbService.getTotalCars((totalCars) => {
+      if (totalCars.status === SUCCESS) {
+        const calculatedPageStart =
+          pageStart < totalCars.data.totalCars
+            ? pageStart
+            : totalCars.data.totalCars - numberOfRecords - 1;
+        dbPool.query(
+          queries.getCars,
+          [calculatedPageStart, numberOfRecords],
+          (err, result) => {
+            if (err) console.log(err);
+
+            if (result) {
+              console.log(result);
+              if (result.length > 0) {
+                onCallback({ status: 'success', data: result });
+              } else {
+                onCallback({
+                  status: 'failed',
+                  data: 'No cars found',
+                });
+              }
+            }
+          }
+        );
+      } else {
+        onCallback({
+          status: 'failed',
+          data: 'Invalid request',
+        });
+      }
+    });
   },
 };
 

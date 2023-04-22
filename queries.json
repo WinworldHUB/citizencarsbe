@@ -1,5 +1,8 @@
 {
   "getUser": "select id, password, role from users where username=? and isActive=1",
   "login": "select id from users where username=? and password=?",
-  "register": "INSERT INTO users(username, password, name, phone, isActive)VALUES(?, ?, ?, ?, b'1');"
+  "register": "INSERT INTO users (username, password, name, phone, isActive)VALUES(?, ?, ?, ?, b'1');",
+  "upload": "INSERT INTO cars ",
+  "getCars": "SELECT * FROM cars LIMIT ?, ?",
+  "getTotalCars": "SELECT count(*) as totalCars from cars"
 }
