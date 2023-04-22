@@ -113,6 +113,21 @@ const dbService = {
     });
   },
 
+  getCar: (SrNo, onCallback) => {
+    dbPool.query(queries.getCar, [SrNo], (err, result) => {
+      if (err) console.log(err);
+
+      if (result && result.length > 0) {
+        onCallback({ status: 'success', data: result[0] });
+      } else {
+        onCallback({
+          status: 'failed',
+          data: 'No cars found',
+        });
+      }
+    });
+  },
+
   getCars: (pageStart, numberOfRecords, onCallback) => {
     dbService.getTotalCars((totalCars) => {
       if (totalCars.status === SUCCESS) {
@@ -146,7 +161,6 @@ const dbService = {
             data: 'No cars found',
           });
         }
-        
       } else {
         onCallback({
           status: 'failed',

@@ -3,6 +3,7 @@
   "login": "select id from users where username=? and password=?",
   "register": "INSERT INTO users (username, password, name, phone, isActive)VALUES(?, ?, ?, ?, b'1');",
   "upload": "INSERT INTO cars ",
+  "getCar": "SELECT * FROM cars WHERE `Sr. No.` = ?",
   "getCars": "SELECT * FROM cars LIMIT ?, ?",
   "getTotalCars": "SELECT count(*) as totalCars from cars"
 }
