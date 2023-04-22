@@ -62,6 +62,7 @@ app.get('/cars', (req, res) => {
 app.get('/car', (req, res) => {
   const carSrNo = req.body.SrNo ?? 0;
   dbService.getCar(carSrNo, (result) => {
+    console.log(result);
     res.json(result);
   });
 });
