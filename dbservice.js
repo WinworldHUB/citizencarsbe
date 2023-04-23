@@ -59,10 +59,10 @@ const dbService = {
             if (result) {
               console.log(result);
               if (result.affectedRows > 0) {
-                onCallback({ status: 'success', data: result[0] });
+                onCallback({ status: SUCCESS, data: result[0] });
               } else {
                 onCallback({
-                  status: 'failed',
+                  status: FAILURE,
                   data: 'Invalid credentials',
                 });
               }
@@ -103,10 +103,10 @@ const dbService = {
       if (err) console.log(err);
 
       if (result && result.length > 0) {
-        onCallback({ status: 'success', data: result[0] });
+        onCallback({ status: SUCCESS, data: result[0] });
       } else {
         onCallback({
-          status: 'failed',
+          status: FAILURE,
           data: 'No cars found',
         });
       }
@@ -118,10 +118,10 @@ const dbService = {
       if (err) console.log(err);
 
       if (result && result.length > 0) {
-        onCallback({ status: 'success', data: result[0] });
+        onCallback({ status: SUCCESS, data: result[0] });
       } else {
         onCallback({
-          status: 'failed',
+          status: FAILURE,
           data: 'No cars found',
         });
       }
@@ -145,10 +145,10 @@ const dbService = {
               if (result) {
                 console.log(result);
                 if (result.length > 0) {
-                  onCallback({ status: 'success', data: result });
+                  onCallback({ status: SUCCESS, data: result });
                 } else {
                   onCallback({
-                    status: 'failed',
+                    status: FAILURE,
                     data: 'No cars found',
                   });
                 }
@@ -157,17 +157,93 @@ const dbService = {
           );
         } else {
           onCallback({
-            status: 'failed',
+            status: FAILURE,
             data: 'No cars found',
           });
         }
       } else {
         onCallback({
-          status: 'failed',
+          status: FAILURE,
           data: 'Invalid request',
         });
       }
     });
+  },
+
+  isCarInWishList: (userId, carId, onCallback) => {
+    const executedQuery = dbPool.query(
+      queries.isCarInWishList,
+      [userId, carId],
+      (err, result) => {
+        if (err) console.log(err);
+
+        if (result && result.length > 0) {
+          onCallback({ status: SUCCESS, data: result[0] });
+        } else {
+          onCallback({
+            status: FAILURE,
+            data: 'Unable to add to wishlist',
+          });
+        }
+      }
+    );
+
+    //console.log(executedQuery);
+  },
+
+  addToWishList: (userId, carId, onCallback) => {
+    const executedQuery = dbService.isCarInWishList(
+      userId,
+      carId,
+      (response) => {
+        console.log(response);
+        if (response.status === FAILURE) {
+          dbPool.query(
+            queries.addToWishList,
+            [userId, carId],
+            (err, result) => {
+              if (err) console.log(err);
+
+              console.log(result);
+
+              if (result) {
+                onCallback({ status: SUCCESS, data: result[0] });
+              } else {
+                onCallback({
+                  status: FAILURE,
+                  data: 'Unable to add to wishlist',
+                });
+              }
+            }
+          );
+        } else {
+          onCallback(response);
+        }
+      }
+    );
+
+    //console.log(executedQuery);
+  },
+
+  getMyWishList: (userId, onCallback) => {
+    const executedQuery = dbPool.query(
+      queries.getMyWishList,
+      [userId],
+      (err, result) => {
+        if (err) console.log(err);
+
+        if (result && result.length > 0) {
+          onCallback({ status: SUCCESS, data: result });
+        } else {
+          onCallback({
+            status: FAILURE,
+            data: 'Your wishlist is empty',
+          });
+        }
+      }
+    );
+
+    //console.log(executedQuery);
   },
 };
 

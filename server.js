@@ -14,6 +14,8 @@ app.use(cors(corsOptions));
 // parse requests of content-type - application/json
 app.use(express.json());
 
+app.use(express.Router({ mergeParams: true }));
+
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
 
@@ -59,10 +61,30 @@ app.get('/cars', (req, res) => {
   });
 });
 
-app.post('/car', (req, res) => {
-  const carSrNo = req.body.SrNo ?? 0;
-  console.log(req.body);
+app.get('/car/:SrNo', (req, res) => {
+  const carSrNo = req.params.SrNo ?? 0;
+
   dbService.getCar(carSrNo, (result) => {
+    console.log(result);
+    res.json(result);
+  });
+});
+
+app.post('/addtowishlist', (req, res) => {
+  const userId = req.body.userId ?? 0;
+  const carId = req.body.carId ?? 0;
+
+  console.log(req.body);
+  dbService.addToWishList(userId, carId, (result) => {
+    console.log(result);
+    res.json(result);
+  });
+});
+
+app.get('/getmywishlist/:userId', (req, res) => {
+  const userId = req.params.userId ?? 0;
+
+  dbService.getMyWishList(userId, (result) => {
     console.log(result);
     res.json(result);
   });

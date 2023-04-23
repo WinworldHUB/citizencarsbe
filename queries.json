@@ -5,5 +5,8 @@
   "upload": "INSERT INTO cars ",
   "getCar": "SELECT * FROM cars WHERE `Sr. No.` = ?",
   "getCars": "SELECT * FROM cars LIMIT ?, ?",
-  "getTotalCars": "SELECT count(*) as totalCars from cars"
+  "getTotalCars": "SELECT count(*) as totalCars from cars",
+  "isCarInWishList": "SELECT * FROM wishlist WHERE userid=? AND carid=?",
+  "addToWishList": "INSERT INTO wishlist (userid, carid) VALUES (?, ?)",
+  "getMyWishList": "SELECT c.* FROM cars c join wishlist w WHERE w.userid=? AND w.carid=c.`Sr. No.`"
 }
