@@ -78,24 +78,34 @@ const dbService = {
 
     dataRows.columns.forEach((column) => (query += `\`${column}\`, `));
 
-    query += ') VALUES ?';
+    query += ') VALUES (?)';
     query = query.replace(', )', ')');
 
-    dbPool.query(query, [dataRows.values], (err, result) => {
-      if (err) console.log(err);
+    dataRows.values.forEach(rowValue => { 
+      dbPool.query(query, [rowValue], (err, result) => {
+        if (err) console.log(err);
 
-      if (result) {
-        console.log(result);
-        if (result.affectedRows > 0) {
-          //onCallback({ status: 'success', data: result });
-        } else {
-          // onCallback({
-          //   status: 'failed',
-          //   data: 'Invalid credentials',
-          // });
+        if (result) {
+          //console.log(`*** SUCCESS: ${rowValue}`);
         }
-      }
+      });
     });
+
+    // dbPool.query(query, [dataRows.values], (err, result) => {
+    //   if (err) console.log(err);
+
+    //   if (result) {
+    //     console.log(result);
+    //     if (result.affectedRows > 0) {
+    //       //onCallback({ status: 'success', data: result });
+    //     } else {
+    //       // onCallback({
+    //       //   status: 'failed',
+    //       //   data: 'Invalid credentials',
+    //       // });
+    //     }
+    //   }
+    // });
   },
 
   getTotalCars: (onCallback) => {
